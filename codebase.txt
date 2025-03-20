@@ -1,53 +1,84 @@
-Praxus Project Structure
+# Praxus Project Structure
 =======================
 
-Root Configuration Files:
+## Root Configuration Files
 ------------------------
 ├── components.json          # UI components configuration
 ├── eslint.config.js        # ESLint configuration
 ├── postcss.config.js       # PostCSS configuration
 ├── tailwind.config.js      # Tailwind CSS configuration
-├── tsconfig.json           # TypeScript main configuration
-├── tsconfig.node.json      # TypeScript Node-specific configuration
-├── vite.config.ts          # Vite bundler configuration
-├── package.json            # Project dependencies and scripts
+├── tsconfig.json          # TypeScript configuration
+├── tsconfig.node.json     # Node-specific TypeScript config
+├── vite.config.ts         # Vite bundler configuration
+├── package.json           # Dependencies and scripts
 
-Application Entry Points:
+## Application Entry Points
 ------------------------
-├── index.html              # Main HTML entry point
-├── main.js                 # Main JavaScript entry
-├── preload.js             # Preload scripts
+├── index.html            # Main HTML entry point
+├── main.js              # Electron main process
+├── preload.js           # Electron preload script
 
-Source Code (/src):
+## Source Code (/src)
 ------------------
-├── App.tsx                 # Root React component
-├── main.tsx               # Application entry point
-├── index.css              # Global styles
+├── App.tsx              # Root React component
+├── main.tsx            # React entry point
+├── index.css           # Global styles and Tailwind directives
 
-Components:
------------
+## Components Directory
+--------------------
 ├── components/
-│  ├── ai-chat-interface.tsx       # AI Chat Interface component
-│  ├── analytics-dashboard.tsx     # Analytics Dashboard component
-│  ├── background-paths.tsx        # Background visualization
-│  ├── praxus-desktop.tsx         # Desktop interface component
-│  ├── praxus-interface.tsx       # Main interface component
-│  ├── settings-pages.tsx         # Settings interface
-│  └── ui/
-│     └── button.tsx              # Reusable button component
+│   ├── ai-chat-interface.tsx    # AI Chat implementation
+│   ├── analytics-dashboard.tsx  # Analytics & statistics
+│   ├── background-paths.tsx     # Animated backgrounds
+│   ├── praxus-desktop.tsx      # Main desktop container
+│   ├── praxus-interface.tsx    # UI shell
+│   ├── settings-pages.tsx      # Settings UI
+│   └── ui/
+│       └── button.tsx          # Shared button component
 
-Utilities:
-----------
+## Library Code
+------------
 ├── lib/
-│  └── utils.ts                   # Utility functions
+│   ├── ipc-bridge.ts          # Electron IPC communication
+│   └── utils.ts               # Utility functions
 
-Assets:
+## Assets
 -------
 ├── assets/
-│  └── react.svg                  # React logo asset
+│   └── react.svg             # React logo
 ├── public/
-│  └── vite.svg                  # Vite logo asset
+│   └── vite.svg             # Vite logo
 
-Documentation:
--------------
-├── README.md                     # Project documentation
+## Key Features
+------------
+1. Electron Integration
+   - IPC communication
+   - Window management
+   - Native system integration
+
+2. Frontend Framework
+   - React with TypeScript
+   - Vite for bundling
+   - TailwindCSS for styling
+   - Framer Motion for animations
+
+3. Development Tools
+   - ESLint for linting
+   - TypeScript for type safety
+   - PostCSS for CSS processing
+   - Vite for development server
+
+4. Backend Integration
+   - Python AI service
+   - Electron IPC bridge
+   - Data persistence
+
+## Tech Stack
+----------
+- Electron
+- React
+- TypeScript
+- TailwindCSS
+- Framer Motion
+- Python (AI backend)
+- Vite

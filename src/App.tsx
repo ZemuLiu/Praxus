@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import AIChatInterface from './components/ai-chat-interface'
+import PraxusDesktop from './components/praxus-desktop'
 
 function App() {
   return (
     <div className="min-h-screen">
-      <AIChatInterface />
+      <PraxusDesktop />
     </div>
   )
 }
