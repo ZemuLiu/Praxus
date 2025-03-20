@@ -1,5 +1,5 @@
 
-@import "tw-animate-css";
+/* @import "tw-animate-css"; - Removed to fix build error */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -19,7 +19,7 @@
   }
 
   body {
-    @apply bg-background text-white m-0 flex min-h-screen min-w-[320px] place-items-center;
+    @apply bg-background text-foreground m-0 flex min-h-screen min-w-[320px] place-items-center;
   }
 
   h1 {
@@ -29,15 +29,24 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-lg transition-colors;
+    @apply bg-primary text-white px-4 py-2 rounded-lg transition-colors;
+  }
+  .btn-primary:hover {
+    @apply bg-opacity-80;
   }
 
   .btn-secondary {
-    @apply bg-secondary hover:bg-secondary/80 text-white px-4 py-2 rounded-lg transition-colors;
+    @apply bg-secondary text-white px-4 py-2 rounded-lg transition-colors;
+  }
+  .btn-secondary:hover {
+    @apply bg-opacity-80;
   }
 
   .link {
-    @apply font-medium text-primary hover:text-primary/80 no-underline;
+    @apply font-medium text-primary no-underline transition-colors;
+  }
+  .link:hover {
+    @apply opacity-80;
   }
 }
 
@@ -47,16 +56,22 @@
   }
 
   .dark-mode a {
-    @apply text-[#646cff] hover:text-[#535bf2];
+    @apply text-[#646cff] transition-colors;
+  }
+  .dark-mode a:hover {
+    @apply text-[#535bf2];
   }
 
   .dark-mode button {
-    @apply bg-[#1a1a1a] hover:border-[#646cff];
+    @apply bg-[#1a1a1a] transition-colors;
+  }
+  .dark-mode button:hover {
+    @apply border-[#646cff];
   }
 
   .dark-mode button:focus,
   .dark-mode button:focus-visible {
-    @apply outline-4 outline-auto -webkit-focus-ring-color;
+    @apply outline-4 outline-[#646cff];
   }
 
   .light-mode {
@@ -64,11 +79,14 @@
   }
 
   .light-mode a {
-    @apply text-[#646cff] hover:text-[#747bff];
+    @apply text-[#646cff] transition-colors;
+  }
+  .light-mode a:hover {
+    @apply text-[#747bff];
   }
 
   .light-mode button {
-    @apply bg-[#f9f9f9];
+    @apply bg-[#f9f9f9] transition-colors;
   }
 }
 
@@ -181,7 +199,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-none;
   }
   body {
     @apply bg-background text-foreground;

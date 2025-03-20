@@ -1,9 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Send, Mic, Image, User, Bot } from "lucide-react"
+import { ipcBridge } from "@/lib/ipc-bridge"
 
 function FloatingPaths({ position }: { position: number }) {
   const paths = Array.from({ length: 36 }, (_, i) => ({
@@ -66,8 +67,14 @@ export default function AIChatInterface() {
   ])
   const [inputValue, setInputValue] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const handleSendMessage = () => {
+  // Auto-scroll to bottom of messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages, isTyping])
+
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return
 
     // Add user message
@@ -81,20 +88,54 @@ export default function AIChatInterface() {
     setMessages([...messages, newUserMessage])
     setInputValue("")
 
-    // Simulate AI typing
+    // Show AI typing indicator
     setIsTyping(true)
 
-    // Simulate AI response after a delay
-    setTimeout(() => {
-      const aiResponse: Message = {
+    try {
+      // Send message to backend via IPC
+      const response = await ipcBridge.chat(inputValue);
+      
+      if (response.success && response.data) {
+        // Parse the response which comes as a string from Python
+        const responseData = typeof response.data === 'string' 
+          ? JSON.parse(response.data) 
+          : response.data;
+        
+        const aiResponse: Message = {
+          id: messages.length + 2,
+          content: responseData.text || "Sorry, I couldn't process that request.",
+          sender: "ai",
+          timestamp: new Date(),
+        }
+        
+        setMessages((prev) => [...prev, aiResponse])
+      } else {
+        // Handle error
+        const errorResponse: Message = {
+          id: messages.length + 2,
+          content: "Sorry, I encountered an error processing your request.",
+          sender: "ai",
+          timestamp: new Date(),
+        }
+        
+        setMessages((prev) => [...prev, errorResponse])
+        console.error("Chat API error:", response.error)
+      }
+    } catch (error) {
+      console.error("Error sending message:", error)
+      
+      // Add error message
+      const errorResponse: Message = {
         id: messages.length + 2,
-        content: `I understand you're asking about "${inputValue}". That's an interesting topic! How else can I assist you?`,
+        content: "Sorry, there was an error connecting to the AI service. Please try again later.",
         sender: "ai",
         timestamp: new Date(),
       }
-      setMessages((prev) => [...prev, aiResponse])
+      
+      setMessages((prev) => [...prev, errorResponse])
+    } finally {
       setIsTyping(false)
-    }, 1500)
+    }
   }
 
   return (
@@ -118,8 +159,8 @@ export default function AIChatInterface() {
               <Bot className="text-white" size={20} />
             </div>
             <div className="ml-3">
-              <h2 className="font-semibold text-gray-800">AI Assistant</h2>
-              <p className="text-xs text-gray-500">Always ready to help</p>
+              <h2 className="font-semibold text-gray-800">Praxus AI Assistant</h2>
+              <p className="text-xs text-gray-500">Powered by Mistral</p>
             </div>
           </div>
         </motion.div>
@@ -162,7 +203,7 @@ export default function AIChatInterface() {
                         : "bg-gradient-to-r from-gray-50 to-white shadow-[inset_3px_3px_6px_#d9d9d9,inset_-3px_-3px_6px_#ffffff]"
                     }`}
                   >
-                    <p className="text-gray-800">{message.content}</p>
+                    <p className="text-gray-800 whitespace-pre-wrap">{message.content}</p>
                     <p className="text-xs text-gray-400 mt-1">
                       {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
@@ -196,6 +237,9 @@ export default function AIChatInterface() {
                 </div>
               </motion.div>
             )}
+            
+            {/* Invisible div for auto-scrolling */}
+            <div ref={messagesEndRef} />
           </div>
         </motion.div>
 
@@ -249,6 +293,7 @@ export default function AIChatInterface() {
                         hover:shadow-[2px_2px_4px_#d9d9d9,-2px_-2px_4px_#ffffff]
                         hover:from-blue-500 hover:to-purple-600
                         transition-all duration-300"
+              disabled={isTyping || !inputValue.trim()}
             >
               <Send className="text-white" size={18} />
             </Button>
