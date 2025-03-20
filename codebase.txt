@@ -1,0 +1,53 @@
+Praxus Project Structure
+=======================
+
+Root Configuration Files:
+------------------------
+├── components.json          # UI components configuration
+├── eslint.config.js        # ESLint configuration
+├── postcss.config.js       # PostCSS configuration
+├── tailwind.config.js      # Tailwind CSS configuration
+├── tsconfig.json           # TypeScript main configuration
+├── tsconfig.node.json      # TypeScript Node-specific configuration
+├── vite.config.ts          # Vite bundler configuration
+├── package.json            # Project dependencies and scripts
+
+Application Entry Points:
+------------------------
+├── index.html              # Main HTML entry point
+├── main.js                 # Main JavaScript entry
+├── preload.js             # Preload scripts
+
+Source Code (/src):
+------------------
+├── App.tsx                 # Root React component
+├── main.tsx               # Application entry point
+├── index.css              # Global styles
+
+Components:
+-----------
+├── components/
+│  ├── ai-chat-interface.tsx       # AI Chat Interface component
+│  ├── analytics-dashboard.tsx     # Analytics Dashboard component
+│  ├── background-paths.tsx        # Background visualization
+│  ├── praxus-desktop.tsx         # Desktop interface component
+│  ├── praxus-interface.tsx       # Main interface component
+│  ├── settings-pages.tsx         # Settings interface
+│  └── ui/
+│     └── button.tsx              # Reusable button component
+
+Utilities:
+----------
+├── lib/
+│  └── utils.ts                   # Utility functions
+
+Assets:
+-------
+├── assets/
+│  └── react.svg                  # React logo asset
+├── public/
+│  └── vite.svg                  # Vite logo asset
+
+Documentation:
+-------------
+├── README.md                     # Project documentation
