@@ -3,7 +3,7 @@ import PraxusDesktop from './components/praxus-desktop'
 
 function App() {
   return (
-    <div className="min-h-screen">
+    <div className="w-full h-screen flex flex-col overflow-hidden">
       <PraxusDesktop />
     </div>
   )

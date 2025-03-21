@@ -1,6 +1,8 @@
 "use client"
 
 import type React from "react"
+// Remove the import statement for MistralClient
+// import { MistralClient } from "mistral-api-client"
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -33,7 +35,10 @@ import {
   Sun,
 } from "lucide-react"
 
-// Update the FloatingPaths component to have darker strips on white background for light mode
+// Remove the initialization of Mistral API client
+// const mistral = new MistralClient(process.env.MISTRAL_API_KEY!)
+
+// Define the FloatingPaths component
 function FloatingPaths({
   position,
   opacity = 0.8,
@@ -172,6 +177,7 @@ interface TimeBlock {
 // Update the main component to include all the requested changes
 export default function PraxusDesktop() {
   const [darkMode, setDarkMode] = useState(false)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<"home" | "chat" | "planning" | "settings">("chat")
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([
     {
@@ -264,7 +270,7 @@ export default function PraxusDesktop() {
     return () => clearInterval(interval)
   }, [])
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return
 
     // Add user message
@@ -291,21 +297,39 @@ export default function PraxusDesktop() {
     // Simulate AI typing
     setIsTyping(true)
 
-    // Simulate AI response after a delay
-    setTimeout(() => {
+    try {
+      // Call Python backend for AI response
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: inputValue, session_id: activeChatId.toString() }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+
       const aiResponse: Message = {
         id: Date.now() + 1,
-        content: `I understand you're asking about "${inputValue}". That's an interesting topic! How else can I assist you?`,
+        content: data.text.trim(),
         sender: "ai",
-        timestamp: new Date(),
+        timestamp: new Date(data.timestamp),
       }
+
       setChatSessions((prevSessions) =>
         prevSessions.map((session) =>
           session.id === activeChatId ? { ...session, messages: [...session.messages, aiResponse] } : session,
         ),
       )
+    } catch (error) {
+      console.error("Error fetching AI response:", error)
+    } finally {
       setIsTyping(false)
-    }, 1500)
+    }
   }
 
   const handleAddTask = () => {
@@ -513,6 +537,7 @@ export default function PraxusDesktop() {
               activeTab === "planning"
                 ? darkMode
                   ? "bg-gray-700 text-blue-400 shadow-[0_2px_10px_rgba(0,0,0,0.2)]"
+                  
                   : "bg-white text-blue-600 shadow-[0_2px_10px_rgba(0,0,0,0.05)]"
                 : darkMode
                   ? "text-gray-400 hover:text-gray-300"
@@ -555,8 +580,9 @@ export default function PraxusDesktop() {
           </div>
 
           {/* User profile button */}
-          <div className="relative group hover:cursor-pointer">
+          <div className="relative">
             <button
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
               className={`flex items-center space-x-2 p-1.5 rounded-lg ${
                 darkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"
               } transition-colors`}
@@ -574,61 +600,64 @@ export default function PraxusDesktop() {
             </button>
 
             {/* Profile dropdown */}
-            <div
-              className={`absolute right-0 mt-2 w-64 p-3 rounded-xl shadow-lg z-50 invisible group-hover:visible ${
-                darkMode ? "bg-gray-800 border border-gray-700" : "bg-white/90 backdrop-blur-sm border border-gray-200"
-              }`}
-            >
-              <div className="flex items-center space-x-3 mb-3">
-                <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    darkMode ? "bg-blue-600" : "bg-gradient-to-br from-blue-500 to-purple-500"
-                  } text-white font-medium`}
-                >
-                  {userProfile.avatar}
-                </div>
-                <div>
-                  <div className={`font-medium ${darkMode ? "text-white" : "text-gray-800"}`}>{userProfile.name}</div>
-                  <div className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>{userProfile.email}</div>
-                  <div className={`text-xs mt-1 ${darkMode ? "text-blue-400" : "text-blue-600"}`}>
-                    {userProfile.role}
+            {isProfileOpen && (
+              <div
+                className={`absolute right-0 mt-2 w-64 p-3 rounded-xl shadow-lg z-[100] ${
+                  darkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
+                }`}
+                onMouseLeave={() => setIsProfileOpen(false)}
+              >
+                <div className="flex items-center space-x-3 mb-3">
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      darkMode ? "bg-blue-600" : "bg-gradient-to-br from-blue-500 to-purple-500"
+                    } text-white font-medium`}
+                  >
+                    {userProfile.avatar}
+                  </div>
+                  <div>
+                    <div className={`font-medium ${darkMode ? "text-white" : "text-gray-800"}`}>{userProfile.name}</div>
+                    <div className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>{userProfile.email}</div>
+                    <div className={`text-xs mt-1 ${darkMode ? "text-blue-400" : "text-blue-600"}`}>
+                      {userProfile.role}
+                    </div>
                   </div>
                 </div>
+                <div className={`text-xs ${darkMode ? "text-gray-500" : "text-gray-400"} mb-3`}>
+                  Last login: {userProfile.lastLogin.toLocaleString()}
+                </div>
+                <div className="space-y-1">
+                  <button
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm ${
+                      darkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    View Profile
+                  </button>
+                  <button
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm ${
+                      darkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    Account Settings
+                  </button>
+                  <button
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm ${
+                      darkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    Subscription
+                  </button>
+                  <button
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm ${
+                      darkMode ? "hover:bg-gray-700 text-red-400" : "hover:bg-gray-100 text-red-600"
+                    }`}
+                  >
+                    Sign Out
+                  </button>
+                </div>
               </div>
-              <div className={`text-xs ${darkMode ? "text-gray-500" : "text-gray-400"} mb-3`}>
-                Last login: {userProfile.lastLogin.toLocaleString()}
-              </div>
-              <div className="space-y-1">
-                <button
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm ${
-                    darkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-700"
-                  }`}
-                >
-                  View Profile
-                </button>
-                <button
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm ${
-                    darkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-700"
-                  }`}
-                >
-                  Account Settings
-                </button>
-                <button
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm ${
-                    darkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-700"
-                  }`}
-                >
-                  Subscription
-                </button>
-                <button
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm ${
-                    darkMode ? "hover:bg-gray-700 text-red-400" : "hover:bg-gray-100 text-red-600"
-                  }`}
-                >
-                  Sign Out
-                </button>
-              </div>
-            </div>
+            )}
           </div>
 
           <button

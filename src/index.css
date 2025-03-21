@@ -1,8 +1,4 @@
 
-/* @import "tw-animate-css"; - Removed to fix build error */
-
-@custom-variant dark (&:is(.dark *));
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -18,8 +14,12 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  html, body, #root {
+    @apply w-full h-full m-0 p-0 overflow-hidden;
+  }
+
   body {
-    @apply bg-background text-foreground m-0 flex min-h-screen min-w-[320px] place-items-center;
+    @apply bg-background text-foreground;
   }
 
   h1 {

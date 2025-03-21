@@ -17,14 +17,21 @@ const getAppDataPath = () => {
 };
 
 function createWindow() {
+  // Create the browser window with improved settings
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
+    minWidth: 800,  // Set minimum window size
+    minHeight: 600,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
     },
+    // Improve window appearance
+    backgroundColor: '#1a1a1a',
+    show: false, // Don't show until ready
+    frame: false, // Use our custom frame
   });
 
   // In development, load the Vite dev server
@@ -36,6 +43,16 @@ function createWindow() {
   } else {
     win.loadFile(path.join(__dirname, 'dist', 'index.html'));
   }
+
+  // Show window when ready to prevent flickering
+  win.once('ready-to-show', () => {
+    win.show();
+  });
+
+  // Handle window resizing
+  win.on('resize', () => {
+    win.webContents.send('window-resize', win.getSize());
+  });
 
   return win;
 }
